@@ -19,9 +19,6 @@ DS_polytunnel_spike_corrected <- DS_polytunnel_vis_short %>%
 ggplot(DS_polytunnel_spike_corrected, aes(y = spike_length_mm, x = flowering_day))+
   geom_point()
 
-a <- 'DS_polytunnel_vis_short, aes(y = seed_weight_g, x = flowering_day)'
-b <- 'flowering_day'
-
 
 # Creating a data set in which the observatiosn are grouped by the line number
 DS_polytunnel_grouped <- DS_polytunnel_spike_corrected %>% 
@@ -78,3 +75,27 @@ ggplot(DS_polytunnel_spike_corrected, aes(y = spike_length_mm, x = height_mm))+
 ggplot(DS_polytunnel_spike_corrected, aes(x = flowering_day, y = height_mm))+
   geom_point()+
   facet_wrap(~line.name)
+
+## One discrete vs. one continuous
+# seed weight vs. empty spike
+ggplot(DS_polytunnel_spike_corrected, aes(y = seed_weight_g, x = empty_spike))+
+  geom_col()# +
+#  facet_wrap(~line.name)
+
+# # seed weight vs. tiller count 
+# ggplot(DS_polytunnel_spike_corrected, aes(y = mean(seed_weight_g), x = tiller_count))+ #had to use mean of the seed weight
+#   geom_col()#+
+# #  facet_wrap(~line.name)
+# 
+# # seed weight vs. spikelet number
+# ggplot(DS_polytunnel_spike_corrected, aes(y = seed_weight_g, x = spikelet_number))+ #had to use mean of the seed weight
+#   geom_col()#+
+# #  facet_wrap(~line.name)
+# 
+# # seed weight vs. final leaf number
+# ggplot(DS_polytunnel_spike_corrected, aes(y = seed_weight_g, x = final_leaf_number))+ #had to use mean of the seed weight
+#   geom_col()
+# 
+# # height vs. final leaf number
+# ggplot(DS_polytunnel_spike_corrected, aes(y = mean(height_mm), x = final_leaf_number))+ #had to use mean of the seed weight
+#   geom_col()
