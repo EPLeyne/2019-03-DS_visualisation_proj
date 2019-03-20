@@ -1,5 +1,3 @@
-#See if this works
-
 library(tidyverse)
 
 # Assign the observations to be dropped from the file
@@ -31,6 +29,18 @@ DS_polytunnel_vis <- DS_polytunnel_vis %>%
   rename(vern_end_date = vern_end_date_20190318.1.1) %>% 
   rename(plant_date = plant_date_20190318.1.1) %>% 
   rename(seed_weight_g = seed.weight_20190208.65.1)
+
+
+#Change formats from num to date
+DS_polytunnel_vis$plant_date <- as.character.Date( DS_polytunnel_vis$plant_date) %>% 
+  as.Date(format = '%Y%m%d')
+DS_polytunnel_vis$vern_end_date <- as.character.Date(DS_polytunnel_vis$vern_end_date) %>% 
+  as.Date(format = '%Y%m%d')
+DS_polytunnel_vis$flowering_date <- as.character.Date(DS_polytunnel_vis$flowering_date) %>% 
+  as.Date(format = '%Y%m%d')
+
+# Create a new column of flowering days
+DS_polytunnel_vis <- mutate(DS_polytunnel_vis, flowering_day = (flowering_date - vern_end_date))
 
 # Remove all rows with missing data
 DS_polytunnel_vis <- na.omit(DS_polytunnel_vis)
