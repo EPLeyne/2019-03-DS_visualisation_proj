@@ -51,7 +51,8 @@ DS_polytunnel_vis_short <- filter(DS_polytunnel_vis, line.id < 45)
 # Create the full data set filtering out the outliers
 DS_polytunnel_vis_long <- DS_polytunnel_vis %>% 
   filter(between(spike_length_mm, 10, 300)) %>% 
-  filter(final_leaf_number<15)
+  filter(final_leaf_number < 15) %>% 
+  filter(spike_length_mm < 200)
 
 # Write the two files to .csv files
 write_csv(DS_polytunnel_vis, 'worked_data/DS_polytunnel_CAS.csv')

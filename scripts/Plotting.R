@@ -1,8 +1,9 @@
 ## Creating ggplots
 library(tidyverse)
+library(quantreg)
 
-ggplot(DS_polytunnel_vis_short, aes(x=spikelet_number, y=height_mm, colour = final_leaf_number))+
-  geom_point()
+ggplot(DS_polytunnel_vis_short, aes(x=spikelet_number, y=height_mm))+
+  geom_point(aes(colour = final_leaf_number))
 
 
 # Plot of flowering day and spike length, not particularly interesting but highlights...
@@ -21,8 +22,7 @@ ggplot(DS_polytunnel_spike_corrected, aes(y = spike_length_mm, x = flowering_day
   geom_smooth()
 
 ggplot(DS_polytunnel_spike_corrected)+
-  geom_point(mapping = aes(y = spike_length_mm, x = flowering_day))+
-  geom_line()
+  geom_point(mapping = aes(y = spike_length_mm, x = flowering_day))
 
 # Creating a data set in which the observatiosn are grouped by the line number
 DS_polytunnel_grouped <- DS_polytunnel_spike_corrected %>% 
@@ -55,7 +55,8 @@ ggplot(DS_polytunnel_vis_short, aes(y = seed_weight_g, x = flowering_day)) +
 ggplot(DS_polytunnel_vis_short, aes(y = seed_weight_g, x = flowering_day)) +
   geom_point() +
   geom_smooth(method = lm)+
-  geom_label(aes(label = line.name))
+  geom_label(aes(label = line.name))+
+  geom_density_2d()
 
 
 ## Started to work through all the x and y combinations to see anything interesting..
@@ -63,11 +64,12 @@ ggplot(DS_polytunnel_vis_short, aes(y = seed_weight_g, x = flowering_day)) +
 # Seed weight vs spike length
 ggplot(DS_polytunnel_spike_corrected, aes(x = spike_length_mm, y = seed_weight_g))+
   geom_point()+
+  geom_smooth(method = lm)
   facet_wrap(~line.name)
 
 # Seed weight vs. height
 ggplot(DS_polytunnel_spike_corrected, aes(y = seed_weight_g, x = height_mm))+
-  geom_point()+
+  geom_point() #+
   facet_wrap(~line.name)
 
 # Height vs. Spike length
@@ -78,7 +80,7 @@ ggplot(DS_polytunnel_spike_corrected, aes(y = spike_length_mm, x = height_mm))+
 
 # Height vs flowering day
 ggplot(DS_polytunnel_spike_corrected, aes(x = flowering_day, y = height_mm))+
-  geom_point()+
+  geom_point() #+
   facet_wrap(~line.name)
 
 ## One discrete vs. one continuous
@@ -96,7 +98,8 @@ ggplot(DS_polytunnel_spike_corrected, aes(y = seed_weight_g, x = tiller_count))+
 ggplot(DS_polytunnel_spike_corrected, aes(y = seed_weight_g, x = spikelet_number))+ 
    geom_col(stat = 'summary')#+
 # #  facet_wrap(~line.name)
-# 
+
+
 # # seed weight vs. final leaf number
 #ggplot(DS_polytunnel_spike_corrected, aes(y = seed_weight_g, x = final_leaf_number))+ 
 #     geom_col(stat = summary)
@@ -118,7 +121,7 @@ ggplot(DS_polytunnel_spike_corrected, aes(y = spike_length_mm, x = final_leaf_nu
   coord_polar()
 
 # flowering day vs. final leaf number
-ggplot(DS_polytunnel_spike_corrected, aes(y = flowering_day, x = final_leaf_number))+ 
+ggplot(DS_polytunnel_spike_corrected, aes(x = flowering_day, y = final_leaf_number))+ 
   geom_point()+
   geom_smooth()# +
 #  geom_label(aes(label = line.name))
