@@ -2,6 +2,8 @@
 library(tidyverse)
 library(quantreg)
 
+pairs(DS_polytunnel_spike_corrected)
+
 ggplot(DS_polytunnel_vis_short, aes(x=spikelet_number, y=height_mm))+
   geom_point(aes(colour = final_leaf_number))
 

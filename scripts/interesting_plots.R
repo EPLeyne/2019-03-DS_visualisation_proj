@@ -58,3 +58,40 @@ ggplot(DS_polytunnel_vis_long, aes(x = spikelet_number, y = spike_length_mm))+
 # empty spike vs spikelet number
 ggplot(DS_polytunnel_spike_corrected, aes(x = empty_spike, y = spikelet_number))+ 
   geom_count()
+
+
+
+
+
+ggplot(DS_polytunnel_spike_corrected, aes(y = spike_length_mm, x = flowering_day))+
+  geom_point(aes(colour = seed_weight_g))+
+  facet_wrap(~line.name)+
+  scale_color_gradientn(colours = rainbow(6)) +
+  theme(panel.background = element_rect( fill = "#9B1010"))
+
+ggplot(DS_polytunnel_spike_corrected, aes(y = spike_length_mm, x = flowering_day))+
+  geom_point(aes(colour = seed_weight_g))+
+  facet_wrap(~line.name)+
+  scale_color_continuous() +
+  theme(panel.background = element_rect( fill = "#f87385"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+
+
+
+ggplot(DS_polytunnel_spike_corrected, aes(y = flowering_day, x = line.name))+
+  geom_point(aes(colour = seed_weight_g)) + 
+  geom_boxplot(alpha = 0)+
+  theme(panel.grid.minor = element_blank(),
+        axis.text.x = element_text(angle = 60, hjust = 1),
+        panel.background = element_rect( fill = "#edf8b1"))
+
+
+
+ggplot(DS_polytunnel_spike_corrected, aes(y = seed_weight_g, x = flowering_day))+
+  geom_point()+
+  facet_wrap(~line.name)+
+  scale_color_continuous() +
+  theme(panel.background = element_rect( fill = "#f87385"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())

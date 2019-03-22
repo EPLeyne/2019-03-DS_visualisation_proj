@@ -1,0 +1,183 @@
+---
+title: "Polytunnel_2018"
+author: "Emmett Leyne"
+date: "22 March 2019"
+output: html_document
+---
+
+
+#### Project summary:
+The OzWheat diversity panel (~250 lines) was planted and vernalised for 3 weeks in April 2018. After vernalisation the pots were moved to the polytunnel on the CSIRO Black Mountain site.
+
+##### Observations made during growing:
+* Flowering time
+
+#####Observations made at harvest:
+* Height
+* Spike length
+* Empty spikelet number
+* Tiller count
+* Spike length
+* Tiller number
+
+###### Data Munging steps
+
+1. Adding libraries
+
+```{r, include = FALSE}
+
+library(tidyverse)
+library(GGally)
+
+```
+
+
+2. Importing the data, removing unwanted columns and removing spaces from column names.
+
+```{r, include = FALSE}
+col_drop <- c('fpNodeId', 'packet_stemid', 'position', 'pot_stemid', 'Photo_20181129.60.1', 'Photo_20181204.32.1', 'Flowering Date_20180524.40.1')
+
+# Read the .csv file, drop the unwanted variables, and remove spaces from variable names
+DS_polytunnel_vis <- read_csv('../raw_data/DS_polytunnel-wide.csv') %>% 
+  select(-(col_drop)) %>% 
+  dplyr::rename_all(funs(make.names(.)))
+
+
+
+
+```
+
+3. Due to the data collection app breaking up the same results into different columns the columns had to be merged using mutate() and column names changed to be more manageable.
+```{r, include = FALSE}
+# Mutate the different observation columns into common columns and remove the old columns
+DS_polytunnel_vis <- mutate(DS_polytunnel_vis, flowering_date = Flowering.Date_20180725.15.1,Flowering.Date_20180817.2.1) %>% 
+  select(-starts_with('Flowering.'))
+DS_polytunnel_vis <- mutate(DS_polytunnel_vis, final_leaf_number = final.leaf.number_20180524.41.1, final.leaf.number_20181204.26.1, final.leaf.number_20181210.31.1) %>% 
+  select(-starts_with('final.leaf.number'))
+DS_polytunnel_vis <- mutate(DS_polytunnel_vis, spikelet_number = spikelet.number_20180524.42.1, spikelet.number_20181204.27.1, spikelet.number_20181210.32.1) %>% 
+  select(-starts_with('spikelet.number'))
+DS_polytunnel_vis <- mutate(DS_polytunnel_vis, height_mm = Height_20180524.43.1, Height_20181204.28.1, Height_20181210.33.1) %>% 
+  select(-starts_with("Height_2"))
+DS_polytunnel_vis <- mutate(DS_polytunnel_vis, tiller_count = tillers_20180524.44.1, tillers_20181204.29.1, tillers_20181210.34.1) %>% 
+  select(-starts_with('tillers'))
+DS_polytunnel_vis <- mutate(DS_polytunnel_vis, spike_length_mm = Spike.Length_20181122.59.1, Spike.Length_20181204.31.1, Spike.Length_20181210.36.1) %>% 
+  select(-starts_with('Spike.'))
+DS_polytunnel_vis <- mutate(DS_polytunnel_vis, empty_spike = empty.spikelets_20180524.45.1, empty.spikelets_20181204.30.1, empty.spikelets_20181210.35.1) %>% 
+  select(-starts_with('empty.'))
+
+# Rename the FieldPrime columns into more manageable column names
+DS_polytunnel_vis <- DS_polytunnel_vis %>% 
+  rename(vern_end_date = vern_end_date_20190318.1.1) %>% 
+  rename(plant_date = plant_date_20190318.1.1) %>% 
+  rename(seed_weight_g = seed.weight_20190208.65.1)
+
+```
+
+4. Change the dates from num type to date type and create a 'flowering_day' observation
+
+```{r, include = FALSE}
+#Change formats from num to date
+DS_polytunnel_vis$plant_date <- as.character.Date( DS_polytunnel_vis$plant_date) %>% 
+  as.Date(format = '%Y%m%d')
+DS_polytunnel_vis$vern_end_date <- as.character.Date(DS_polytunnel_vis$vern_end_date) %>% 
+  as.Date(format = '%Y%m%d')
+DS_polytunnel_vis$flowering_date <- as.character.Date(DS_polytunnel_vis$flowering_date) %>% 
+  as.Date(format = '%Y%m%d')
+
+# Create a new column of flowering days
+DS_polytunnel_vis <- mutate(DS_polytunnel_vis, flowering_day = (flowering_date - vern_end_date))
+```
+
+5. Remove line with NA data and outliers and created a full set and a subset of 43 line to give around 100 observations. Lots of incomplete data sets and flowering day ends at day 120 (see explanation)
+
+```{r, include= FALSE}
+# Remove all rows with missing data
+DS_polytunnel_vis <- na.omit(DS_polytunnel_vis)
+
+# Create a subset of the first 45 lines (around 100 rows of data)
+DS_polytunnel_vis_short <- filter(DS_polytunnel_vis, line.id < 45)
+
+# Create the full data set filtering out the outliers
+DS_polytunnel_vis_long <- DS_polytunnel_vis %>% 
+  filter(between(spike_length_mm, 10, 300)) %>% 
+  filter(final_leaf_number < 15) %>% 
+  filter(spike_length_mm < 200)
+
+```
+
+### Plotting
+
+Took one set at random and found an instant problem with outliers in the subset..
+
+```{r}
+ggplot(DS_polytunnel_vis_short, aes(y = spike_length_mm, x = flowering_day))+
+  geom_point()
+
+```
+
+For those interested a 60 cm spike probably didn't grow, so outlier removed and the same plot again
+
+```{r}
+
+# Creating a new dataset removing the outliers in the spike_length_mm (definite incorrect data)
+
+DS_polytunnel_spike_corrected <- DS_polytunnel_vis_short %>% 
+  filter(between (spike_length_mm,10,200))
+
+# Same plot as above, outliers removed
+ggplot(DS_polytunnel_spike_corrected, aes(y = spike_length_mm, x = flowering_day))+
+  geom_point()+
+  geom_smooth()
+```
+
+Paired up the data to see correlations
+
+```{r}
+ggpairs(DS_polytunnel_spike_corrected, columns = c(5,9:14))
+```
+
+No strong correlations, which is kind of the story of the data. Looking at the whole result there are some stronger correlations but they are kind of obvious, ie. spike length and spiklet number correlate well but that is pretty obvious.
+
+
+Looked at the facet wrap of a plot of interest  (flowering day vs. seed weight)..
+
+
+```{r}
+ggplot(DS_polytunnel_spike_corrected, aes(y = seed_weight_g, x = flowering_day))+
+  geom_point()+
+  facet_wrap(~line.name)+
+  scale_color_continuous() +
+  theme(panel.background = element_rect( fill = "#f87385"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+```
+
+This is a good result in terms of the project because is does more clearly show differences in between the lines which the project is searching for. 
+
+As facet wraps aren't the ideal way to present I put the 3 variables into 1 chart..
+
+```{r}
+ggplot(DS_polytunnel_spike_corrected, aes(y = flowering_day, x = line.name))+
+  geom_point(aes(colour = seed_weight_g)) + 
+  theme(panel.grid.minor = element_blank(),
+        axis.text.x = element_text(angle = 60, hjust = 1),
+        panel.background = element_rect( fill = "#edf8b1"))
+```
+
+
+Work in progress to highlight the groupings with a transparent box plot...
+```{r}
+ggplot(DS_polytunnel_spike_corrected, aes(y = flowering_day, x = line.name))+
+  geom_point(aes(colour = seed_weight_g)) + 
+  geom_boxplot(alpha = 0)+
+  theme(panel.grid.minor = element_blank(),
+        axis.text.x = element_text(angle = 60, hjust = 1),
+        panel.background = element_rect( fill = "#edf8b1"))
+```
+
+
+Suggestions:
+
+Try colour pallets
+Sort line names by average seed weight/ flowering days
+Plot 6-9 lines at a time using the limited colours
